@@ -12,38 +12,34 @@ I used Ananya Rao(demo name) - AS my login details.
 
 ### Accounts and security
 
-- Register, log in, log out and change your password (ASP.NET Core Identity)
-- Passwords need at least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol
-- Five failed logins lock the account for 15 minutes
-- Admins can issue one-time password reset links
-- Three roles: Admins can do everything, Managers see their own and their team's records, and Sales Executives see only their own or assigned records
-- The server checks access on every page, record and API call
-- The audit log records logins, failed logins, lockouts, password and role changes, and every create, update, delete and workflow event. It's append-only, enforced by a database trigger.
+- Register, log in, log out and change your password
+- Strong passwords: 8+ characters with upper and lower case letters, a number and a symbol
+- Accounts lock for 15 minutes after 5 failed logins
+- Three roles: Admins see everything, Managers see their team's records, Sales Executives see their own
+- Admins manage users and roles, and can reset passwords
+- Audit log of logins, security changes and every create, update and delete
 
-### Sales workflow
+### Sales
 
-- Leads move New → Contacted → Qualified → Converted, or end as Unqualified or Lost
-- A qualified lead converts into a customer, plus an optional opportunity, in a single transaction
-- Customers can be created, edited, viewed, deactivated and searched, with unique email and phone, a change history and related activities
-- Opportunities move Qualification → Proposal → Negotiation → Won or Lost, and their amount and probability give the weighted pipeline
-- A sales pipeline board shows opportunities by stage
-- Follow-ups can be scheduled, completed, marked missed, cancelled or rescheduled against a customer, lead or opportunity
-- Overdue and upcoming follow-ups show up in the header bell
-- Activities log calls, meetings, emails and tasks against customers and leads
+- Customers: add, edit, view, deactivate and search, with no duplicate email or phone
+- Leads: New → Contacted → Qualified → Converted (or Unqualified / Lost)
+- Convert a qualified lead into a customer and, optionally, an opportunity
+- Opportunities: Qualification → Proposal → Negotiation → Won / Lost, with amount and win probability
+- Sales pipeline board grouped by stage
+- Follow-ups for customers, leads and opportunities, with reminders for overdue and upcoming ones
+- Activities: log calls, meetings, emails and tasks
+- Search and filters on every list page
 
 ### Dashboard and reports
 
-- KPI cards for customers, leads, open leads, opportunities (open, won and lost) and pipeline value
-- Date filters
-- Chart.js charts for lead status, the opportunity pipeline and monthly sales
-- Eight reports: customers, leads, follow-ups, opportunities, pipeline, sales and conversion, user activity, and audit, all with filters, sorting and paging
+- Dashboard with key numbers (customers, leads, opportunities, pipeline value), date filters and charts
+- Eight reports, including pipeline, sales and audit, with filters, sorting and paging
 
 ### API and validation
 
-- REST API secured with JWT, covering customers, leads, opportunities, follow-ups and the pipeline report (see [docs/API.md](docs/API.md))
-- Validation in the browser (unobtrusive validation) and again on the server
-- Business rules, for example: opportunity amount must be greater than 0, probability must be between 0 and 100, and close dates and follow-up dates can't be in the past
-
+- REST API secured with JWT for customers, leads, opportunities and follow-ups (see [docs/API.md](docs/API.md))
+- Every form is checked in the browser and again on the server
+- Business rules such as: amount above 0, probability 0–100, and no past close or follow-up dates
 ## How it works
 
 ### Request flow
