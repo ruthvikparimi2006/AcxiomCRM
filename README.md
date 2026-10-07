@@ -4,6 +4,8 @@ A role-based CRM web application for a sales organisation: customers, leads, opp
 a sales pipeline dashboard, reports, a REST API and a tamper-proof audit log. Built with ASP.NET Core MVC, ASP.NET Core
 Identity, Entity Framework Core and SQL Server.
 
+I used Ananya Rao(demo name) - AS my login details. 
+
 ![Manager dashboard](docs/screenshots/01-dashboard.png)
 
 ## Features
