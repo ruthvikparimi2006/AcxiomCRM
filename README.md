@@ -23,6 +23,65 @@ Identity, Entity Framework Core and SQL Server.
 | REST API | JWT-secured endpoints for customers, leads, opportunities, follow-ups and the pipeline report. See [docs/API.md](docs/API.md). |
 | Validation | Client-side (unobtrusive) and server-side validation with business rules, e.g. opportunity amount > 0, probability 0–100, no past close or follow-up dates. |
 
+## How it works
+
+### Request flow
+
+Every page and API call goes through the same authentication, authorization and business services, so the web UI and
+the REST API always apply identical rules, scope and auditing.
+
+```mermaid
+flowchart LR
+    Browser["Browser<br/>Razor pages"] -->|"Identity cookie<br/>+ anti-forgery token"| Auth
+    Client["API client"] -->|"JWT bearer token<br/>(5 logins/min per IP)"| Auth
+
+    subgraph App["AcxiomCRM (ASP.NET Core)"]
+        Auth["Authentication<br/>active users only, lockout"] --> Roles["Role policies<br/>Admin / Manager / SalesExecutive"]
+        Roles --> Controllers["MVC and API controllers<br/>client + server validation"]
+        Controllers --> Services["Business services<br/>rules, workflows"]
+        Services --> Scope["ScopeService<br/>own / team / all records"]
+        Services --> Audit["AuditService<br/>no secrets stored"]
+    end
+
+    Scope --> DB[("SQL Server<br/>EF Core")]
+    Services --> DB
+    Audit --> AuditTable[("AuditLogs<br/>append-only trigger")]
+```
+
+### CRM workflow
+
+```mermaid
+flowchart TD
+    A["Create lead<br/>status: New"] --> B["Assign to a Sales Executive"]
+    B --> C["Contact lead<br/>status: Contacted"]
+    C --> Q{"Qualified?"}
+    Q -->|"No"| X["Unqualified / Lost"]
+    Q -->|"Yes"| D["Convert lead"]
+
+    D --> E{"Customer with same<br/>email or phone?"}
+    E -->|"Yes"| F["Link existing customer"]
+    E -->|"No"| G["Create customer"]
+    F --> H["Create opportunity<br/>(optional)"]
+    G --> H
+
+    H --> I["Qualification → Proposal → Negotiation<br/>amount, probability, weighted pipeline"]
+    I --> J{"Outcome"}
+    J -->|"Won"| K["Won: counted in monthly sales"]
+    J -->|"Lost"| L["Lost"]
+
+    B -.->|"schedule"| FU["Follow-up<br/>date not before today"]
+    G -.->|"schedule"| FU
+    I -.->|"schedule"| FU
+    FU --> R{"Planned"}
+    R -->|"Complete / Missed / Cancel"| S["Closed; related record updated"]
+    R -->|"Reschedule"| FU
+    R -.->|"overdue or due within 7 days"| BELL["Reminder bell and Pending page"]
+
+    D -.->|"every step"| AUD[("Audit log")]
+    I -.-> AUD
+    S -.-> AUD
+```
+
 ## Screenshots
 
 | | |
