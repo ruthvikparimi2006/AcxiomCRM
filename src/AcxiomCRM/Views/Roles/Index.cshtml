@@ -1,0 +1,18 @@
+@model List<(string Role, int Users)>
+@{ ViewData["Title"] = "Roles"; }
+
+<h1 class="h3 mb-3">Roles</h1>
+<p class="text-muted">Each user has exactly one role. Assign roles from <a asp-controller="Users" asp-action="Index">Users</a>.</p>
+<table class="table">
+    <thead><tr><th>Role</th><th>Users</th></tr></thead>
+    <tbody>
+        @foreach (var (role, count) in Model)
+        {
+            <tr>
+                <td>@role</td>
+                <td><a asp-controller="Users" asp-action="Index" asp-route-role="@role">@count</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-action="Permissions">View permission matrix</a>

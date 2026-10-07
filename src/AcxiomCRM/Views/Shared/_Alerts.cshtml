@@ -1,0 +1,17 @@
+@* Success / error / warning / info notifications set through TempData (GEN-05). *@
+@foreach (var (key, css, role) in new[]
+{
+    ("Success", "alert-success", "status"),
+    ("Info", "alert-info", "status"),
+    ("Warning", "alert-warning", "alert"),
+    ("Error", "alert-danger", "alert"),
+})
+{
+    if (TempData[key] is string message)
+    {
+        <div class="alert @css alert-dismissible fade show" role="@role">
+            @message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}

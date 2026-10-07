@@ -1,0 +1,172 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var p = Model.Period;
+    var cards = new (string Title, string Value, string? Link)[]
+    {
+        ("Total Customers", Model.TotalCustomers.ToString("N0"), Url.Action("Index", "Customers")),
+        ("Total Leads", Model.TotalLeads.ToString("N0"), Url.Action("Index", "Leads")),
+        ("Open Leads", Model.OpenLeads.ToString("N0"), Url.Action("Index", "Leads")),
+        ("Total Opportunities", Model.TotalOpportunities.ToString("N0"), Url.Action("Index", "Opportunities")),
+        ("Open Opportunities", Model.OpenOpportunities.ToString("N0"), Url.Action("Index", "Opportunities", new { status = "Open" })),
+        ("Won Opportunities", Model.WonOpportunities.ToString("N0"), Url.Action("Index", "Opportunities", new { status = "Won" })),
+        ("Lost Opportunities", Model.LostOpportunities.ToString("N0"), Url.Action("Index", "Opportunities", new { status = "Lost" })),
+        ("Total Pipeline Value", Model.PipelineValue.ToString("N2"), Url.Action("Pipeline", "Opportunities")),
+    };
+    var charts = new
+    {
+        leadStatus = Model.LeadStatus,
+        pipelineCounts = Model.PipelineCounts,
+        pipelineAmounts = Model.PipelineAmounts,
+        monthlySales = Model.MonthlySales,
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+    <h1 class="h3 mb-0">Dashboard</h1>
+    <span class="text-muted">Showing @Model.Scope · @p.Label</span>
+</div>
+
+@* DASH-05 date filters. *@
+<form method="get" class="d-flex flex-wrap align-items-end gap-2 mb-3" aria-label="Date filter">
+    <div class="btn-group flex-wrap" role="group" aria-label="Period">
+        @foreach (var (key, label) in new[] { ("all", "All time"), ("today", "Today"), ("week", "This week"), ("month", "This month") })
+        {
+            <a class="btn btn-sm @(p.Key == key ? "btn-primary" : "btn-outline-primary")" aria-current="@(p.Key == key ? "true" : null)"
+               asp-action="Index" asp-route-range="@key">@label</a>
+        }
+    </div>
+    <input type="hidden" name="range" value="custom" />
+    <div>
+        <label for="from" class="form-label small mb-0">From</label>
+        <input id="from" name="from" type="date" class="form-control form-control-sm" value="@(p.Key == "custom" ? p.FromDay?.ToString("yyyy-MM-dd") : null)" />
+    </div>
+    <div>
+        <label for="to" class="form-label small mb-0">To</label>
+        <input id="to" name="to" type="date" class="form-control form-control-sm" value="@(p.Key == "custom" ? p.ToDay?.ToString("yyyy-MM-dd") : null)" />
+    </div>
+    <button type="submit" class="btn btn-sm btn-outline-secondary">Apply custom range</button>
+</form>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
+    @foreach (var card in cards)
+    {
+        <div class="col">
+            <a href="@card.Link" class="card h-100 text-decoration-none text-body">
+                <div class="card-body">
+                    <h2 class="h6 text-muted">@card.Title</h2>
+                    <p class="fs-4 mb-0" data-kpi="@card.Title">@card.Value</p>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Lead Status</h2>
+            <canvas id="leadStatusChart" role="img" aria-label="Leads by status"></canvas>
+        </div></div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Opportunity Pipeline</h2>
+            <canvas id="pipelineChart" role="img" aria-label="Opportunities and amount by stage"></canvas>
+        </div></div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Monthly Sales <span class="text-muted small">(won, last 12 months)</span></h2>
+            <canvas id="salesChart" role="img" aria-label="Won amount per month"></canvas>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6 d-flex justify-content-between">
+                <span>Follow-ups @(p.Key == "all" ? "in the next 7 days" : "in this period") (@Model.FollowUpsInPeriod)</span>
+                @if (Model.OverdueFollowUps > 0)
+                {
+                    <a asp-controller="FollowUps" asp-action="Pending" class="text-danger">@Model.OverdueFollowUps overdue</a>
+                }
+            </h2>
+            @if (Model.FollowUps.Count == 0)
+            {
+                <p class="text-muted mb-0">No planned follow-ups.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var f in Model.FollowUps)
+                    {
+                        <li><span class="text-muted">@f.Date.ToString("d")</span> · <a asp-controller="FollowUps" asp-action="Details" asp-route-id="@f.Id">@f.Subject</a> — @f.RelatedName</li>
+                    }
+                </ul>
+            }
+        </div></div>
+    </div>
+    @if (Model.Owners.Count > 0)
+    {
+        <div class="col-lg-6">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h6">Performance by assigned user</h2>
+                <table class="table table-sm mb-0">
+                    <thead><tr><th scope="col">User</th><th scope="col" class="text-end">Open</th><th scope="col" class="text-end">Pipeline</th><th scope="col" class="text-end">Won</th><th scope="col" class="text-end">Won amount</th></tr></thead>
+                    <tbody>
+                        @foreach (var o in Model.Owners)
+                        {
+                            <tr><td>@o.Name</td><td class="text-end">@o.OpenCount</td><td class="text-end">@o.PipelineValue.ToString("N2")</td><td class="text-end">@o.WonCount</td><td class="text-end">@o.WonAmount.ToString("N2")</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div></div>
+        </div>
+    }
+    @if (Model.UserStats is { } u)
+    {
+        <div class="col-lg-6">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h6">Users and security</h2>
+                <dl class="row mb-0">
+                    <dt class="col-8 fw-normal">Active users</dt><dd class="col-4 text-end">@u.Active</dd>
+                    <dt class="col-8 fw-normal">Inactive users</dt><dd class="col-4 text-end">@u.Inactive</dd>
+                    <dt class="col-8 fw-normal">Locked accounts</dt><dd class="col-4 text-end">@u.Locked</dd>
+                    <dt class="col-8 fw-normal">Failed logins (@p.Label.ToLowerInvariant())</dt><dd class="col-4 text-end">@u.FailedLogins</dd>
+                </dl>
+            </div></div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/lib/chart.js/chart.umd.min.js"></script>
+    <script id="chartData" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(charts, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)))</script>
+    <script>
+        (function () {
+            const d = JSON.parse(document.getElementById('chartData').textContent);
+            const money = v => Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            new Chart(document.getElementById('leadStatusChart'), {
+                type: 'doughnut',
+                data: { labels: d.leadStatus.labels, datasets: [{ data: d.leadStatus.values }] },
+            });
+            new Chart(document.getElementById('pipelineChart'), {
+                data: {
+                    labels: d.pipelineCounts.labels,
+                    datasets: [
+                        { type: 'bar', label: 'Amount', data: d.pipelineAmounts.values, yAxisID: 'amount' },
+                        { type: 'line', label: 'Count', data: d.pipelineCounts.values, yAxisID: 'count' },
+                    ],
+                },
+                options: { scales: { amount: { position: 'left', ticks: { callback: money } }, count: { position: 'right', grid: { drawOnChartArea: false }, ticks: { precision: 0 } } } },
+            });
+            new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: { labels: d.monthlySales.labels, datasets: [{ label: 'Won amount', data: d.monthlySales.values }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: money } } } },
+            });
+        })();
+    </script>
+}

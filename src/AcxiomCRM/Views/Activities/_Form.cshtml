@@ -1,0 +1,64 @@
+@model ActivityFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="ActivityType" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <select asp-for="ActivityType" asp-items="Html.GetEnumSelectList<ActivityType>()" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="ActivityType" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ActivityDate" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="ActivityDate" type="datetime-local" class="form-control" />
+        <span asp-validation-for="ActivityDate" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Status" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ActivityStatus>()" class="form-select"></select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Subject" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="Subject" class="form-control" />
+        <span asp-validation-for="Subject" class="text-danger"></span>
+    </div>
+</div>
+<fieldset class="row g-3 mt-0 mb-0">
+    <legend class="form-label fs-6 mb-0">Related to <span class="text-danger" aria-hidden="true">*</span> <span class="text-muted small">(a customer, a lead, or both)</span></legend>
+    <div class="col-md-6">
+        <label asp-for="CustomerId" class="form-label"></label>
+        <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="CustomerId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="LeadId" class="form-label"></label>
+        <select asp-for="LeadId" asp-items="Model.Leads" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="LeadId" class="text-danger"></span>
+    </div>
+</fieldset>
+<div class="row g-3 mt-0">
+    <div class="col-md-6">
+        <label asp-for="AssignedTo" class="form-label"></label>
+        @if (Model.Assignees.Count > 1)
+        {
+            <select asp-for="AssignedTo" asp-items="Model.Assignees" class="form-select"></select>
+        }
+        else
+        {
+            <input type="hidden" asp-for="AssignedTo" />
+            <p class="form-control-plaintext">@(Model.Assignees.FirstOrDefault()?.Text)</p>
+        }
+        <span asp-validation-for="AssignedTo" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+</div>

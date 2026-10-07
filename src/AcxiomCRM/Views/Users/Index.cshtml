@@ -1,0 +1,73 @@
+@model UserIndexViewModel
+@{ ViewData["Title"] = "Users"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Users</h1>
+    @if (Model.CanManage)
+    {
+        <a asp-action="Create" class="btn btn-primary">New user</a>
+    }
+</div>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-md-5">
+        <label for="search" class="visually-hidden">Search</label>
+        <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="Name, username or email" />
+    </div>
+    <div class="col-md-3">
+        <label for="role" class="visually-hidden">Role</label>
+        <select id="role" name="role" class="form-select">
+            <option value="">All roles</option>
+            @foreach (var r in Roles.All)
+            {
+                <option value="@r" selected="@(Model.Role == r)">@r</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label for="active" class="visually-hidden">Status</label>
+        <select id="active" name="active" class="form-select">
+            <option value="">Any status</option>
+            <option value="true" selected="@(Model.Active == true)">Active</option>
+            <option value="false" selected="@(Model.Active == false)">Inactive</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary w-100">Filter</button></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <partial name="_SortHeader" model='new SortHeader("Name", "name")' />
+                <partial name="_SortHeader" model='new SortHeader("Username", "username")' />
+                <partial name="_SortHeader" model='new SortHeader("Email", "email")' />
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model.Users.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@u.Id">@u.Name</a></td>
+                    <td>@u.UserName</td>
+                    <td>@u.Email</td>
+                    <td>@u.Role</td>
+                    <td>
+                        <span class="badge @(u.IsActive ? "text-bg-success" : "text-bg-secondary")">@(u.IsActive ? "Active" : "Inactive")</span>
+                        @if (u.IsLockedOut)
+                        {
+                            <span class="badge text-bg-warning">Locked</span>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Users.TotalCount == 0)
+            {
+                <tr><td colspan="5" class="text-muted">No users found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<partial name="_Pagination" model="Model.Users" />

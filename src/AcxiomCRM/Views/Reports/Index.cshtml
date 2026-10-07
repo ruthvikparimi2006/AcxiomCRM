@@ -1,0 +1,17 @@
+@model List<ReportInfo>
+@{ ViewData["Title"] = "Reports"; }
+
+<h1 class="h3 mb-3">Reports</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    @foreach (var r in Model)
+    {
+        <div class="col">
+            <a asp-action="@r.Action" class="card h-100 text-decoration-none text-body">
+                <div class="card-body">
+                    <h2 class="h6">@r.Title</h2>
+                    <p class="text-muted small mb-0">@r.Description</p>
+                </div>
+            </a>
+        </div>
+    }
+</div>

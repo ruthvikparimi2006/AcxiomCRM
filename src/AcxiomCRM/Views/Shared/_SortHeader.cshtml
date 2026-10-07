@@ -1,0 +1,23 @@
+@model SortHeader
+@{
+    var current = Context.Request.Query["sort"].ToString();
+    var isCurrent = string.Equals(current, Model.Field, StringComparison.OrdinalIgnoreCase);
+    var desc = isCurrent && Context.Request.Query["desc"] == "true";
+
+    // Clicking the active column flips direction; any sort change goes back to page 1.
+    var query = Context.Request.Query.Where(q => q.Key is not ("sort" or "desc" or "page"))
+        .ToDictionary(q => q.Key, q => (string?)q.Value.ToString());
+    query["sort"] = Model.Field;
+    query["desc"] = isCurrent && !desc ? "true" : "false";
+    var url = Context.Request.Path + QueryString.Create(query).ToString();
+}
+
+<th scope="col" aria-sort="@(isCurrent ? (desc ? "descending" : "ascending") : null)">
+    <a href="@url" class="link-dark text-decoration-none">
+        @Model.Label
+        @if (isCurrent)
+        {
+            <span aria-hidden="true">@(desc ? "▼" : "▲")</span>
+        }
+    </a>
+</th>

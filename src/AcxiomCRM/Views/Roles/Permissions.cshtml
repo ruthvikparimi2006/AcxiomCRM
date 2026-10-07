@@ -1,0 +1,22 @@
+@{ ViewData["Title"] = "Permissions"; }
+
+<h1 class="h3 mb-3">Permissions</h1>
+<p class="text-muted">Fixed role permissions (read-only). "Team" means a manager plus the Sales Executives assigned to them.</p>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead><tr><th>Module</th><th>Admin</th><th>Manager</th><th>SalesExecutive</th></tr></thead>
+        <tbody>
+            <tr><td>Dashboard</td><td>Full</td><td>Team</td><td>Own/Assigned</td></tr>
+            <tr><td>Customers</td><td>Full</td><td>Team/Business Scope</td><td>Own/Assigned</td></tr>
+            <tr><td>Leads</td><td>Full</td><td>Team</td><td>Own/Assigned</td></tr>
+            <tr><td>Follow-Ups</td><td>Full</td><td>Team</td><td>Own/Assigned</td></tr>
+            <tr><td>Opportunities</td><td>Full</td><td>Team</td><td>Own/Assigned</td></tr>
+            <tr><td>Activities</td><td>All CRM records</td><td>Team CRM data</td><td>Assigned activities</td></tr>
+            <tr><td>User Management</td><td>Full</td><td>View team (read-only)</td><td>No</td></tr>
+            <tr><td>Role Management</td><td>Full</td><td>No</td><td>No</td></tr>
+            <tr><td>Audit Log</td><td>Full</td><td>No</td><td>No</td></tr>
+            <tr><td>REST API</td><td>Authorized endpoints</td><td>Authorized endpoints</td><td>Authorized endpoints</td></tr>
+            <tr><td>Reports</td><td>All</td><td>Management/team reports</td><td>Own/assigned reports</td></tr>
+        </tbody>
+    </table>
+</div>

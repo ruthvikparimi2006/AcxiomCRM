@@ -1,0 +1,50 @@
+@model Reminders
+@{ ViewData["Title"] = "Pending follow-ups"; }
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Pending follow-ups</h1>
+    <a asp-action="Create" class="btn btn-primary">Schedule follow-up</a>
+</div>
+
+@foreach (var (title, items, empty, css) in new[]
+{
+    ($"Overdue ({Model.OverdueCount})", Model.Overdue, "Nothing overdue.", "text-danger"),
+    ($"Upcoming — today and the next {AcxiomCRM.Services.FollowUpService.UpcomingDays} days ({Model.UpcomingCount})", Model.Upcoming, "Nothing due in the next week.", ""),
+})
+{
+    <h2 class="h5 mt-4 @css">@title</h2>
+    @if (items.Count == 0)
+    {
+        <p class="text-muted">@empty</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th><th scope="col">Subject</th><th scope="col">Type</th>
+                        <th scope="col">Related to</th><th scope="col">Assigned To</th><th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in items)
+                    {
+                        <tr>
+                            <td>@f.Date.ToString("d")</td>
+                            <td><a asp-action="Details" asp-route-id="@f.Id">@f.Subject</a></td>
+                            <td>@f.Type</td>
+                            <td><partial name="_RelatedLink" model="f" /></td>
+                            <td>@f.AssignedName</td>
+                            <td class="text-end">
+                                <form asp-action="Complete" asp-route-id="@f.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Complete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

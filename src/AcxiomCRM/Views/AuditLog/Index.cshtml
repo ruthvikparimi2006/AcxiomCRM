@@ -1,0 +1,76 @@
+@model AuditIndexViewModel
+@{ ViewData["Title"] = "Audit log"; }
+
+<h1 class="h3 mb-3">Audit log</h1>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-sm-6 col-md-3">
+        <label for="userId" class="form-label small mb-0">User</label>
+        <select id="userId" name="userId" class="form-select">
+            <option value="">Any user</option>
+            @foreach (var u in Model.Users)
+            {
+                <option value="@u.Value" selected="@(Model.UserId == u.Value)">@u.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="module" class="form-label small mb-0">Module</label>
+        <select id="module" name="module" class="form-select">
+            <option value="">Any module</option>
+            @foreach (var m in Model.Modules)
+            {
+                <option value="@m" selected="@(Model.Module == m)">@m</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="action" class="form-label small mb-0">Action</label>
+        <select id="action" name="action" class="form-select">
+            <option value="">Any action</option>
+            @foreach (var a in Model.Actions)
+            {
+                <option value="@a" selected="@(Model.Action == a)">@a</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="from" class="form-label small mb-0">From</label>
+        <input id="from" name="from" type="date" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="to" class="form-label small mb-0">To</label>
+        <input id="to" name="to" type="date" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-md-1 d-flex align-items-end"><button type="submit" class="btn btn-outline-secondary w-100">Filter</button></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+        <thead>
+            <tr>
+                <th scope="col">When</th><th scope="col">User</th><th scope="col">Module</th><th scope="col">Action</th>
+                <th scope="col">Record</th><th scope="col">Result</th><th scope="col">Changes / details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Entries.Items)
+            {
+                <tr>
+                    <td class="text-nowrap"><a asp-action="Details" asp-route-id="@e.Id">@e.CreatedDate.ToLocalTime().ToString("g")</a></td>
+                    <td>@(e.UserName ?? "—")</td>
+                    <td>@e.Module</td>
+                    <td>@e.Action</td>
+                    <td class="text-nowrap">@e.EntityName @e.RecordId</td>
+                    <td><span class="badge @(e.Result == "Success" ? "text-bg-success" : "text-bg-danger")">@e.Result</span></td>
+                    <td class="small text-break">@(AcxiomCRM.Services.AuditService.DescribeChanges(e.OldValue, e.NewValue) ?? e.Details)</td>
+                </tr>
+            }
+            @if (Model.Entries.TotalCount == 0)
+            {
+                <tr><td colspan="7" class="text-muted">No audit entries found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<partial name="_Pagination" model="Model.Entries" />

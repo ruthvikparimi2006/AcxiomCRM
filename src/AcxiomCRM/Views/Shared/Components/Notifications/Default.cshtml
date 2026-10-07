@@ -1,0 +1,46 @@
+@model Reminders
+@{
+    var label = Model.Total == 0 ? "Notifications: none" : $"Notifications: {Model.OverdueCount} overdue, {Model.UpcomingCount} upcoming follow-ups";
+}
+@* Header bell (GEN-01, FUP-05, D7). The full lists are on the Pending follow-ups page. *@
+<div class="dropdown">
+    <button class="btn btn-link nav-link position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+            aria-label="Notifications" title="@label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6" />
+        </svg>
+        @if (Model.Total > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill @(Model.OverdueCount > 0 ? "text-bg-danger" : "text-bg-primary")">
+                @Model.Total<span class="visually-hidden"> follow-up reminders</span>
+            </span>
+        }
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 20rem;">
+        @if (Model.Total == 0)
+        {
+            <p class="p-3 mb-0 text-muted">No overdue or upcoming follow-ups.</p>
+        }
+        else
+        {
+            @foreach (var (title, items, count, css) in new[]
+            {
+                ("Overdue", Model.Overdue, Model.OverdueCount, "text-danger"),
+                ("Upcoming (next 7 days)", Model.Upcoming, Model.UpcomingCount, "text-primary"),
+            })
+            {
+                if (count == 0) continue;
+                <h6 class="dropdown-header @css">@title (@count)</h6>
+                @foreach (var f in items)
+                {
+                    <a class="dropdown-item small" asp-controller="FollowUps" asp-action="Details" asp-route-id="@f.Id">
+                        <span class="fw-semibold">@f.Date.ToString("d")</span> · @f.Subject
+                        <span class="text-muted">— @f.RelatedName</span>
+                    </a>
+                }
+            }
+            <div class="dropdown-divider my-0"></div>
+            <a class="dropdown-item text-center small py-2" asp-controller="FollowUps" asp-action="Pending">View all pending follow-ups</a>
+        }
+    </div>
+</div>

@@ -1,0 +1,79 @@
+@model FollowUpIndexViewModel
+@{ ViewData["Title"] = "Follow-ups"; }
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Follow-ups</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Pending" class="btn btn-outline-primary">Pending follow-ups</a>
+        <a asp-action="Create" class="btn btn-primary">Schedule follow-up</a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-sm-6 col-md-2">
+        <label for="from" class="form-label small mb-0">From</label>
+        <input id="from" name="from" type="date" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="to" class="form-label small mb-0">To</label>
+        <input id="to" name="to" type="date" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="status" class="form-label small mb-0">Status</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">Any</option>
+            @foreach (var s in Enum.GetValues<FollowUpStatus>())
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="assignedTo" class="form-label small mb-0">Assigned user</label>
+        <select id="assignedTo" name="assignedTo" class="form-select">
+            <option value="">Anyone</option>
+            @foreach (var u in Model.Users)
+            {
+                <option value="@u.Value" selected="@(Model.AssignedTo == u.Value)">@u.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-8 col-md-3">
+        <label for="related" class="form-label small mb-0">Customer or lead</label>
+        <input id="related" name="related" value="@Model.Related" class="form-control" placeholder="Name" />
+    </div>
+    <div class="col-sm-4 col-md-1 d-flex align-items-end"><button type="submit" class="btn btn-outline-secondary w-100">Search</button></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <partial name="_SortHeader" model='new SortHeader("Date", "date")' />
+                <partial name="_SortHeader" model='new SortHeader("Subject", "subject")' />
+                <th scope="col">Type</th>
+                <th scope="col">Related to</th>
+                <partial name="_SortHeader" model='new SortHeader("Assigned To", "assigned")' />
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.FollowUps.Items)
+            {
+                <tr>
+                    <td>@f.Date.ToString("d")</td>
+                    <td><a asp-action="Details" asp-route-id="@f.Id">@f.Subject</a></td>
+                    <td>@f.Type</td>
+                    <td><partial name="_RelatedLink" model="f" /></td>
+                    <td>@f.AssignedName</td>
+                    <td><partial name="_StatusBadge" model="f" /></td>
+                </tr>
+            }
+            @if (Model.FollowUps.TotalCount == 0)
+            {
+                <tr><td colspan="6" class="text-muted">No follow-ups found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<partial name="_Pagination" model="Model.FollowUps" />

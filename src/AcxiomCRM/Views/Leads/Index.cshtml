@@ -1,0 +1,70 @@
+@model LeadIndexViewModel
+@{ ViewData["Title"] = "Leads"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Leads</h1>
+    <a asp-action="Create" class="btn btn-primary">New lead</a>
+</div>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-md-5">
+        <label for="search" class="visually-hidden">Search</label>
+        <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="Lead name or company" />
+    </div>
+    <div class="col-md-2">
+        <label for="status" class="visually-hidden">Status</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">Any status</option>
+            @foreach (var s in Enum.GetValues<LeadStatus>())
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="assignedTo" class="visually-hidden">Assigned user</label>
+        <select id="assignedTo" name="assignedTo" class="form-select">
+            <option value="">Any assigned user</option>
+            @foreach (var u in Model.Users)
+            {
+                <option value="@u.Value" selected="@(Model.AssignedTo == u.Value)">@u.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary w-100">Search</button></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <partial name="_SortHeader" model='new SortHeader("Code", "code")' />
+                <partial name="_SortHeader" model='new SortHeader("Name", "name")' />
+                <partial name="_SortHeader" model='new SortHeader("Company", "company")' />
+                <th scope="col">Status</th>
+                <th scope="col">Priority</th>
+                <partial name="_SortHeader" model='new SortHeader("Expected Value", "value")' />
+                <partial name="_SortHeader" model='new SortHeader("Assigned To", "assigned")' />
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Leads.Items)
+            {
+                <tr>
+                    <td>@l.Code</td>
+                    <td><a asp-action="Details" asp-route-id="@l.Id">@l.Name</a></td>
+                    <td>@l.Company</td>
+                    <td><partial name="_LeadStatusBadge" model="l.Status" /></td>
+                    <td>@l.Priority</td>
+                    <td class="text-end">@l.ExpectedValue?.ToString("N2")</td>
+                    <td>@l.AssignedName</td>
+                </tr>
+            }
+            @if (Model.Leads.TotalCount == 0)
+            {
+                <tr><td colspan="7" class="text-muted">No leads found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<partial name="_Pagination" model="Model.Leads" />

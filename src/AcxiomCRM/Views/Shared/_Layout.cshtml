@@ -1,0 +1,90 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AcxiomCRM</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AcxiomCRM.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    @{
+        var controller = ViewContext.RouteData.Values["controller"] as string;
+        var isAdmin = User.IsInRole(Roles.Admin);
+        var isManager = User.IsInRole(Roles.Manager);
+        var isCrmUser = isAdmin || isManager || User.IsInRole(Roles.SalesExecutive);
+        var canViewAudit = (await AuthorizationService.AuthorizeAsync(User, Policies.ViewAuditLog)).Succeeded;
+        string NavClass(string c) => c == controller ? "nav-link active" : "nav-link";
+        string? Current(string c) => c == controller ? "page" : null;
+    }
+    <a class="visually-hidden-focusable btn btn-light position-absolute m-2" href="#main">Skip to main content</a>
+
+    <header>
+        <nav class="navbar navbar-expand-md bg-body-tertiary border-bottom mb-3" aria-label="Main navigation">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-semibold" asp-controller="Dashboard" asp-action="Index">AcxiomCRM</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    @* GEN-02: menu items follow the signed-in user's role. Pages enforce the same rules on the server. *@
+                    <ul class="navbar-nav me-auto">
+                        @if (isCrmUser)
+                        {
+                            <li class="nav-item"><a class="@NavClass("Dashboard")" aria-current="@Current("Dashboard")" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-item"><a class="@NavClass("Customers")" aria-current="@Current("Customers")" asp-controller="Customers" asp-action="Index">Customers</a></li>
+                            <li class="nav-item"><a class="@NavClass("Leads")" aria-current="@Current("Leads")" asp-controller="Leads" asp-action="Index">Leads</a></li>
+                            <li class="nav-item"><a class="@NavClass("Opportunities")" aria-current="@Current("Opportunities")" asp-controller="Opportunities" asp-action="Index">Opportunities</a></li>
+                            <li class="nav-item"><a class="@NavClass("FollowUps")" aria-current="@Current("FollowUps")" asp-controller="FollowUps" asp-action="Index">Follow-ups</a></li>
+                            <li class="nav-item"><a class="@NavClass("Activities")" aria-current="@Current("Activities")" asp-controller="Activities" asp-action="Index">Activities</a></li>
+                            <li class="nav-item"><a class="@NavClass("Reports")" aria-current="@Current("Reports")" asp-controller="Reports" asp-action="Index">Reports</a></li>
+                        }
+                        @if (isAdmin || isManager)
+                        {
+                            <li class="nav-item"><a class="@NavClass("Users")" aria-current="@Current("Users")" asp-controller="Users" asp-action="Index">Users</a></li>
+                        }
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item"><a class="@NavClass("Roles")" aria-current="@Current("Roles")" asp-controller="Roles" asp-action="Index">Roles</a></li>
+                        }
+                        @if (canViewAudit)
+                        {
+                            <li class="nav-item"><a class="@NavClass("AuditLog")" aria-current="@Current("AuditLog")" asp-controller="AuditLog" asp-action="Index">Audit log</a></li>
+                        }
+                    </ul>
+                    <div class="d-flex align-items-center gap-2">
+                        @if (isCrmUser)
+                        {
+                            @await Component.InvokeAsync("Notifications")
+                        }
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main id="main" role="main" class="pb-3" tabindex="-1">
+            <partial name="_Alerts" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">&copy; @DateTime.Now.Year AcxiomCRM</div>
+    </footer>
+
+    <partial name="_ConfirmModal" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

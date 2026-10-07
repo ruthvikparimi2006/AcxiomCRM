@@ -1,0 +1,56 @@
+@model UserDetailsViewModel
+@{ ViewData["Title"] = Model.Name; }
+@section Head {
+    @if (Model.ResetLink is not null)
+    {
+        <meta name="referrer" content="no-referrer" />
+    }
+}
+
+<h1 class="h3 mb-3">@Model.Name</h1>
+
+@if (Model.ResetLink is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <p class="mb-2"><strong>One-time password reset link.</strong> Send it to the user privately. It works once, expires in 30 minutes, and will not be shown again.</p>
+        <label for="resetLink" class="visually-hidden">Reset link</label>
+        <input id="resetLink" class="form-control font-monospace" value="@Model.ResetLink" readonly />
+    </div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Username</dt><dd class="col-sm-9">@Model.UserName</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+    <dt class="col-sm-3">Role</dt><dd class="col-sm-9">@Model.Role</dd>
+    <dt class="col-sm-3">Manager</dt><dd class="col-sm-9">@(Model.ManagerName ?? "—")</dd>
+    <dt class="col-sm-3">Account status</dt><dd class="col-sm-9">@(Model.IsActive ? "Active" : "Inactive")</dd>
+    <dt class="col-sm-3">Lockout status</dt>
+    <dd class="col-sm-9">
+        @(Model.IsLockedOut ? $"Locked until {Model.LockoutEnd!.Value.ToLocalTime():g}" : "Not locked")
+        (failed attempts: @Model.AccessFailedCount)
+    </dd>
+    <dt class="col-sm-3">Created</dt><dd class="col-sm-9">@Model.CreatedDate.ToLocalTime().ToString("g")</dd>
+</dl>
+
+@if (Model.CanManage)
+{
+    var toggle = Model.IsActive ? "Deactivate" : "Activate";
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <form asp-action="SetActive" asp-route-id="@Model.Id" method="post"
+              data-confirm="@(Model.IsActive ? "Deactivate this user? They will be signed out and cannot log in until reactivated." : "Activate this user?")">
+            <input type="hidden" name="active" value="@(Model.IsActive ? "false" : "true")" />
+            <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">@toggle</button>
+        </form>
+        @if (Model.IsLockedOut)
+        {
+            <form asp-action="Unlock" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-outline-warning">Unlock</button>
+            </form>
+        }
+        <form asp-action="ResetLink" asp-route-id="@Model.Id" method="post">
+            <button type="submit" class="btn btn-outline-secondary">Generate reset link</button>
+        </form>
+    </div>
+}
+<p class="mt-3"><a asp-action="Index">Back to users</a></p>

@@ -1,0 +1,12 @@
+@model OpportunityStage
+@{
+    var css = Model switch
+    {
+        OpportunityStage.Won => "text-bg-success",
+        OpportunityStage.Lost => "text-bg-secondary",
+        OpportunityStage.Negotiation => "text-bg-warning",
+        OpportunityStage.Proposal => "text-bg-info",
+        _ => "text-bg-primary",
+    };
+}
+<span class="badge @css">@Model</span>

@@ -1,0 +1,81 @@
+@model ConvertLeadViewModel
+@{
+    var l = Model.Lead;
+    ViewData["Title"] = "Convert lead";
+}
+
+<h1 class="h3 mb-1">Convert lead</h1>
+<p class="text-muted mb-3">@l.LeadName <span class="small">@l.LeadCode</span> — the lead becomes Converted and stays assigned to the same user.</p>
+
+<form asp-action="Convert" asp-route-id="@l.LeadId" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <h2 class="h5">Customer</h2>
+    @if (Model.MatchedCustomer is { } match)
+    {
+        <div class="alert alert-info" role="status">
+            An existing customer has the same email or phone. The lead will be linked to
+            <a asp-controller="Customers" asp-action="Details" asp-route-id="@match.CustomerId">@match.CustomerName (@match.CustomerCode)</a>
+            instead of creating a duplicate.
+        </div>
+    }
+    else
+    {
+        <p class="text-muted small">A new customer will be created from these details.</p>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="Customer.CustomerName" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+                <input asp-for="Customer.CustomerName" class="form-control" />
+                <span asp-validation-for="Customer.CustomerName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Customer.CompanyName" class="form-label"></label>
+                <input asp-for="Customer.CompanyName" class="form-control" />
+                <span asp-validation-for="Customer.CompanyName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Customer.Email" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+                <input asp-for="Customer.Email" type="email" class="form-control" />
+                <span asp-validation-for="Customer.Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Customer.Phone" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+                <input asp-for="Customer.Phone" type="tel" inputmode="numeric" maxlength="10" class="form-control" />
+                <span asp-validation-for="Customer.Phone" class="text-danger"></span>
+            </div>
+        </div>
+    }
+
+    <div class="form-check form-switch mb-2">
+        <input asp-for="CreateOpportunity" class="form-check-input" role="switch" />
+        <label asp-for="CreateOpportunity" class="form-check-label">Also create an opportunity</label>
+    </div>
+    <fieldset id="opportunityFields" class="mb-3">
+        <legend class="visually-hidden">Opportunity</legend>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Opportunity.OpportunityName" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+                <input asp-for="Opportunity.OpportunityName" class="form-control" />
+                <span asp-validation-for="Opportunity.OpportunityName" class="text-danger"></span>
+            </div>
+            <partial name="/Views/Opportunities/_DealFields.cshtml" for="Opportunity" />
+        </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn-success">Convert lead</button>
+    <a asp-action="Details" asp-route-id="@l.LeadId" class="btn btn-link">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Disabled inputs are neither validated nor posted, so unticking the switch skips the opportunity.
+        (function () {
+            const toggle = document.getElementById('CreateOpportunity');
+            const fields = document.getElementById('opportunityFields');
+            const sync = () => { fields.disabled = !toggle.checked; };
+            toggle.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
+}

@@ -1,0 +1,62 @@
+@model ActivityDetailsViewModel
+@{
+    var a = Model.Activity;
+    ViewData["Title"] = a.Subject;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@a.Subject <span class="badge text-bg-secondary align-middle fs-6">@a.Status</span></h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@a.ActivityId" class="btn btn-primary">Edit</a>
+        <form asp-action="Delete" asp-route-id="@a.ActivityId" method="post" data-confirm="Delete this activity? It will be removed from lists but kept for history.">
+            <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@a.ActivityType</dd>
+    <dt class="col-sm-3">Date</dt><dd class="col-sm-9">@a.ActivityDate.ToString("g")</dd>
+    <dt class="col-sm-3">Customer</dt>
+    <dd class="col-sm-9">
+        @if (a.CustomerId is { } cid)
+        {
+            <a asp-controller="Customers" asp-action="Details" asp-route-id="@cid">@Model.CustomerName</a>
+        }
+        else
+        {
+            <text>—</text>
+        }
+    </dd>
+    <dt class="col-sm-3">Lead</dt>
+    <dd class="col-sm-9">
+        @if (a.LeadId is { } lid)
+        {
+            <a asp-controller="Leads" asp-action="Details" asp-route-id="@lid">@Model.LeadName</a>
+        }
+        else
+        {
+            <text>—</text>
+        }
+    </dd>
+    <dt class="col-sm-3">Assigned to</dt><dd class="col-sm-9">@Model.AssignedName</dd>
+    <dt class="col-sm-3">Description</dt><dd class="col-sm-9" style="white-space: pre-line">@(a.Description ?? "—")</dd>
+</dl>
+
+<h2 class="h5 mt-4">History</h2>
+<ul class="list-group">
+    @foreach (var h in Model.History)
+    {
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <strong>@h.Action</strong>
+                <span class="text-muted small">@h.When.ToLocalTime().ToString("g") · @(h.UserName ?? "System")</span>
+            </div>
+            @if (h.Changes is not null)
+            {
+                <div class="small text-break">@h.Changes</div>
+            }
+        </li>
+    }
+</ul>
+<p class="mt-3"><a asp-action="Index">Back to activities</a></p>

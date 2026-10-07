@@ -1,0 +1,23 @@
+@model OpportunityInput
+@* Amount, stage, probability and close date: shared by the opportunity form and lead conversion. *@
+<div class="col-md-3">
+    <label asp-for="Amount" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+    <input asp-for="Amount" type="number" step="0.01" min="0" class="form-control" />
+    <span asp-validation-for="Amount" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="Stage" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+    <select asp-for="Stage" class="form-select"
+            asp-items="@(Enum.GetValues<OpportunityStage>().Select(s => new SelectListItem(s.ToString(), s.ToString())))"></select>
+    <span asp-validation-for="Stage" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="Probability" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+    <input asp-for="Probability" type="number" step="1" min="0" max="100" class="form-control" />
+    <span asp-validation-for="Probability" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="ExpectedCloseDate" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+    <input asp-for="ExpectedCloseDate" type="date" class="form-control" />
+    <span asp-validation-for="ExpectedCloseDate" class="text-danger"></span>
+</div>

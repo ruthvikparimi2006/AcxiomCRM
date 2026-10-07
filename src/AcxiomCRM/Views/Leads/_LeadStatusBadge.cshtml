@@ -1,0 +1,12 @@
+@model LeadStatus
+@{
+    var css = Model switch
+    {
+        LeadStatus.New => "text-bg-primary",
+        LeadStatus.Contacted => "text-bg-info",
+        LeadStatus.Qualified => "text-bg-success",
+        LeadStatus.Converted => "text-bg-dark",
+        _ => "text-bg-secondary",
+    };
+}
+<span class="badge @css">@Model</span>

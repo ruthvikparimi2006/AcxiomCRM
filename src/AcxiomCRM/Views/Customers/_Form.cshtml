@@ -1,0 +1,64 @@
+@model CustomerFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="CustomerName" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="CustomerName" class="form-control" />
+        <span asp-validation-for="CustomerName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CompanyName" class="form-label"></label>
+        <input asp-for="CompanyName" class="form-control" />
+        <span asp-validation-for="CompanyName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="Email" type="email" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Phone" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="Phone" type="tel" inputmode="numeric" maxlength="10" class="form-control" aria-describedby="phoneHelp" />
+        <div id="phoneHelp" class="form-text">10-digit mobile number starting with 6–9.</div>
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="State" class="form-label"></label>
+        <input asp-for="State" class="form-control" />
+        <span asp-validation-for="State" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<CustomerStatus>()" class="form-select"></select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="OwnerId" class="form-label"></label>
+        @if (Model.Owners.Count > 1)
+        {
+            <select asp-for="OwnerId" asp-items="Model.Owners" class="form-select"></select>
+        }
+        else
+        {
+            <input type="hidden" asp-for="OwnerId" />
+            <p class="form-control-plaintext">@(Model.Owners.FirstOrDefault()?.Text)</p>
+        }
+        <span asp-validation-for="OwnerId" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "Log in"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <h1 class="h3 mb-3">Log in</h1>
+        <form asp-action="Login" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="mb-3">
+                <label asp-for="Login" class="form-label"></label>
+                <input asp-for="Login" class="form-control" autocomplete="username" autofocus />
+                <span asp-validation-for="Login" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Log in</button>
+        </form>
+        <p class="mt-3">New user? <a asp-action="Register">Register</a></p>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

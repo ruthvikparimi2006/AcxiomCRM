@@ -1,0 +1,32 @@
+@model AuditRow
+@{
+    ViewData["Title"] = "Audit entry";
+    static string Pretty(string? json) => json is null ? "—"
+        : System.Text.Json.Nodes.JsonNode.Parse(json)?.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }) ?? json;
+}
+
+<h1 class="h3 mb-3">Audit entry #@Model.Id</h1>
+<p class="text-muted">Audit entries are permanent and cannot be edited or deleted.</p>
+
+<dl class="row">
+    <dt class="col-sm-3">When</dt><dd class="col-sm-9">@Model.CreatedDate.ToLocalTime().ToString("F")</dd>
+    <dt class="col-sm-3">User</dt><dd class="col-sm-9">@(Model.UserName ?? "—")</dd>
+    <dt class="col-sm-3">Module</dt><dd class="col-sm-9">@Model.Module</dd>
+    <dt class="col-sm-3">Action</dt><dd class="col-sm-9">@Model.Action</dd>
+    <dt class="col-sm-3">Record</dt><dd class="col-sm-9">@Model.EntityName @Model.RecordId</dd>
+    <dt class="col-sm-3">Result</dt><dd class="col-sm-9">@Model.Result</dd>
+    <dt class="col-sm-3">IP address</dt><dd class="col-sm-9">@(Model.IpAddress ?? "—")</dd>
+    <dt class="col-sm-3">Details</dt><dd class="col-sm-9">@(Model.Details ?? "—")</dd>
+</dl>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <h2 class="h6">Old value</h2>
+        <pre class="bg-body-tertiary p-2 small" style="white-space: pre-wrap">@Pretty(Model.OldValue)</pre>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h6">New value</h2>
+        <pre class="bg-body-tertiary p-2 small" style="white-space: pre-wrap">@Pretty(Model.NewValue)</pre>
+    </div>
+</div>
+<p class="mt-3"><a asp-action="Index">Back to audit log</a></p>

@@ -1,0 +1,31 @@
+@model UserFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="UserName" class="form-label"></label>
+    <input asp-for="UserName" class="form-control" autocomplete="off" />
+    <span asp-validation-for="UserName" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Email" class="form-label"></label>
+    <input asp-for="Email" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Role" class="form-label"></label>
+    <select asp-for="Role" class="form-select" asp-items="@(new SelectList(Roles.All))"></select>
+    <span asp-validation-for="Role" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="ManagerId" class="form-label"></label>
+    <select asp-for="ManagerId" class="form-select" asp-items="Model.Managers" aria-describedby="managerHelp">
+        <option value="">No manager</option>
+    </select>
+    <div id="managerHelp" class="form-text">Sales Executives only.</div>
+    <span asp-validation-for="ManagerId" class="text-danger"></span>
+</div>

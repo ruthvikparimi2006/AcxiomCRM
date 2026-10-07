@@ -1,0 +1,13 @@
+@model FollowUpFormViewModel
+@{ ViewData["Title"] = "Schedule follow-up"; }
+
+<h1 class="h3 mb-3">Schedule follow-up</h1>
+<form asp-action="Create" method="post" novalidate>
+    <partial name="_Form" />
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Schedule</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

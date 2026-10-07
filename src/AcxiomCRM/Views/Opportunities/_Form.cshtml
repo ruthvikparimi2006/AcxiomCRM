@@ -1,0 +1,50 @@
+@model OpportunityFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="OpportunityName" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <input asp-for="OpportunityName" class="form-control" />
+        <span asp-validation-for="OpportunityName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CustomerId" class="form-label"></label> <span class="text-danger" aria-hidden="true">*</span>
+        <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="CustomerId" class="text-danger"></span>
+    </div>
+    <partial name="_DealFields" />
+    <div class="col-md-4">
+        <label asp-for="LeadId" class="form-label"></label>
+        <select asp-for="LeadId" asp-items="Model.Leads" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="LeadId" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Source" class="form-label"></label>
+        <select asp-for="Source" asp-items="Html.GetEnumSelectList<LeadSource>()" class="form-select">
+            <option value="">—</option>
+        </select>
+        <span asp-validation-for="Source" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="AssignedTo" class="form-label"></label>
+        @if (Model.Assignees.Count > 1)
+        {
+            <select asp-for="AssignedTo" asp-items="Model.Assignees" class="form-select"></select>
+        }
+        else
+        {
+            <input type="hidden" asp-for="AssignedTo" />
+            <p class="form-control-plaintext">@(Model.Assignees.FirstOrDefault()?.Text)</p>
+        }
+        <span asp-validation-for="AssignedTo" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+@model List<PipelineStage>
+@{
+    ViewData["Title"] = "Sales pipeline";
+    var open = Model.Where(s => AcxiomCRM.Services.OpportunityService.IsOpen(s.Stage)).ToList();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Sales pipeline</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary">All opportunities</a>
+</div>
+
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <caption class="visually-hidden">Pipeline by stage</caption>
+        <thead>
+            <tr><th scope="col">Stage</th><th scope="col" class="text-end">Opportunities</th><th scope="col" class="text-end">Amount</th><th scope="col" class="text-end">Weighted amount</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <th scope="row"><a asp-action="Index" asp-route-stage="@s.Stage"><partial name="_StageBadge" model="s.Stage" /></a></th>
+                    <td class="text-end">@s.Count</td>
+                    <td class="text-end">@s.Amount.ToString("N2")</td>
+                    <td class="text-end">@s.Weighted.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-semibold">
+                <th scope="row">Open pipeline</th>
+                <td class="text-end">@open.Sum(s => s.Count)</td>
+                <td class="text-end">@open.Sum(s => s.Amount).ToString("N2")</td>
+                <td class="text-end">@open.Sum(s => s.Weighted).ToString("N2")</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-3">
+    @foreach (var s in open)
+    {
+        <section class="col" aria-labelledby="stage-@s.Stage">
+            <h2 id="stage-@s.Stage" class="h6 d-flex justify-content-between">
+                <span>@s.Stage</span><span class="text-muted">@s.Count · @s.Amount.ToString("N0")</span>
+            </h2>
+            @if (s.Items.Count == 0)
+            {
+                <p class="text-muted small">No opportunities.</p>
+            }
+            @foreach (var o in s.Items)
+            {
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <a asp-action="Details" asp-route-id="@o.Id" class="fw-semibold">@o.Name</a>
+                        <div class="small text-muted">@o.CustomerName</div>
+                        <div class="small">@o.Amount.ToString("N2") · @o.Probability% · close @o.ExpectedCloseDate.ToString("d")</div>
+                    </div>
+                </div>
+            }
+        </section>
+    }
+</div>

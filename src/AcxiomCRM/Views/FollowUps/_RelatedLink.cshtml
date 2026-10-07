@@ -1,0 +1,13 @@
+@model FollowUpListItem
+@if (Model.CustomerId is { } customerId)
+{
+    <a asp-controller="Customers" asp-action="Details" asp-route-id="@customerId">@Model.RelatedName</a> <span class="text-muted small">(customer)</span>
+}
+else if (Model.LeadId is { } leadId)
+{
+    <a asp-controller="Leads" asp-action="Details" asp-route-id="@leadId">@Model.RelatedName</a> <span class="text-muted small">(lead)</span>
+}
+else if (Model.OpportunityId is { } opportunityId)
+{
+    <a asp-controller="Opportunities" asp-action="Details" asp-route-id="@opportunityId">@Model.RelatedName</a> <span class="text-muted small">(opportunity)</span>
+}

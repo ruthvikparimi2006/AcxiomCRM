@@ -1,0 +1,79 @@
+@model OpportunityIndexViewModel
+@{ ViewData["Title"] = "Opportunities"; }
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Opportunities</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Pipeline" class="btn btn-outline-primary">Sales pipeline</a>
+        <a asp-action="Create" class="btn btn-primary">New opportunity</a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-md-4">
+        <label for="search" class="visually-hidden">Opportunity name</label>
+        <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="Opportunity name" />
+    </div>
+    <div class="col-md-3">
+        <label for="customer" class="visually-hidden">Customer</label>
+        <input id="customer" name="customer" value="@Model.Customer" class="form-control" placeholder="Customer" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label for="stage" class="visually-hidden">Stage</label>
+        <select id="stage" name="stage" class="form-select">
+            <option value="">Any stage</option>
+            @foreach (var s in Enum.GetValues<OpportunityStage>())
+            {
+                <option value="@s" selected="@(Model.Stage == s)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-2">
+        <label for="status" class="visually-hidden">Status</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">Any status</option>
+            @foreach (var s in Enum.GetValues<OpportunityStatus>())
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-1"><button type="submit" class="btn btn-outline-secondary w-100">Search</button></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <partial name="_SortHeader" model='new SortHeader("Name", "name")' />
+                <th scope="col">Customer</th>
+                <th scope="col">Stage</th>
+                <partial name="_SortHeader" model='new SortHeader("Amount", "amount")' />
+                <th scope="col" class="text-end">Probability</th>
+                <th scope="col" class="text-end">Weighted</th>
+                <partial name="_SortHeader" model='new SortHeader("Expected Close", "close")' />
+                <th scope="col">Assigned To</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Opportunities.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@o.Id">@o.Name</a></td>
+                    <td><a asp-controller="Customers" asp-action="Details" asp-route-id="@o.CustomerId">@o.CustomerName</a></td>
+                    <td><partial name="_StageBadge" model="o.Stage" /></td>
+                    <td class="text-end">@o.Amount.ToString("N2")</td>
+                    <td class="text-end">@o.Probability%</td>
+                    <td class="text-end">@o.Weighted.ToString("N2")</td>
+                    <td>@o.ExpectedCloseDate.ToString("d")</td>
+                    <td>@o.AssignedName</td>
+                </tr>
+            }
+            @if (Model.Opportunities.TotalCount == 0)
+            {
+                <tr><td colspan="8" class="text-muted">No opportunities found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<partial name="_Pagination" model="Model.Opportunities" />

@@ -1,0 +1,16 @@
+@model FollowUpListItem
+@if (Model.IsOverdue)
+{
+    <span class="badge text-bg-danger">Overdue</span>
+}
+else
+{
+    var css = Model.Status switch
+    {
+        FollowUpStatus.Planned => "text-bg-primary",
+        FollowUpStatus.Completed => "text-bg-success",
+        FollowUpStatus.Missed => "text-bg-warning",
+        _ => "text-bg-secondary",
+    };
+    <span class="badge @css">@Model.Status</span>
+}

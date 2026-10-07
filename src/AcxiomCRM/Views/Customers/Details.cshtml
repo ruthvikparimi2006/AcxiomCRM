@@ -1,0 +1,73 @@
+@model CustomerDetailsViewModel
+@{
+    var c = Model.Customer;
+    ViewData["Title"] = c.CustomerName;
+    var address = string.Join(", ", new[] { c.Address, c.City, c.State }.Where(s => !string.IsNullOrEmpty(s)));
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">
+        @c.CustomerName <small class="text-muted">@c.CustomerCode</small>
+        <span class="badge @(c.Status == CustomerStatus.Active ? "text-bg-success" : "text-bg-secondary") align-middle fs-6">@c.Status</span>
+    </h1>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="FollowUps" asp-action="Create" asp-route-customerId="@c.CustomerId" class="btn btn-outline-primary">Schedule follow-up</a>
+        <a asp-controller="Activities" asp-action="Create" asp-route-customerId="@c.CustomerId" class="btn btn-outline-primary">Log activity</a>
+        <a asp-action="Edit" asp-route-id="@c.CustomerId" class="btn btn-primary">Edit</a>
+        @if (c.Status == CustomerStatus.Active)
+        {
+            <form asp-action="Delete" asp-route-id="@c.CustomerId" method="post"
+                  data-confirm="Delete this customer? It will be marked Inactive and kept for history.">
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+        }
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Company</dt><dd class="col-sm-9">@(c.CompanyName ?? "—")</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@c.Email</dd>
+    <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">@c.Phone</dd>
+    <dt class="col-sm-3">Address</dt>
+    <dd class="col-sm-9">@(address.Length > 0 ? address : "—")</dd>
+    <dt class="col-sm-3">Owner</dt><dd class="col-sm-9">@Model.OwnerName</dd>
+    <dt class="col-sm-3">Created</dt><dd class="col-sm-9">@c.CreatedDate.ToLocalTime().ToString("g") by @Model.CreatedByName</dd>
+    <dt class="col-sm-3">Last modified</dt><dd class="col-sm-9">@(c.ModifiedDate?.ToLocalTime().ToString("g") ?? "—")</dd>
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9" style="white-space: pre-line">@(c.Notes ?? "—")</dd>
+</dl>
+
+<h2 class="h5 mt-4">Related activities</h2>
+@if (Model.Activities.Count == 0)
+{
+    <p class="text-muted">No activities yet.</p>
+}
+else
+{
+    <table class="table table-sm">
+        <thead><tr><th scope="col">Date</th><th scope="col">Type</th><th scope="col">Subject</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+            @foreach (var a in Model.Activities)
+            {
+                <tr><td>@a.Date.ToString("g")</td><td>@a.Type</td><td>@a.Subject</td><td>@a.Status</td></tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h5 mt-4">History</h2>
+<ul class="list-group">
+    @foreach (var h in Model.History)
+    {
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <strong>@h.Action</strong>
+                <span class="text-muted small">@h.When.ToLocalTime().ToString("g") · @(h.UserName ?? "System")</span>
+            </div>
+            @if (h.Changes is not null)
+            {
+                <div class="small text-break">@h.Changes</div>
+            }
+        </li>
+    }
+</ul>
+<p class="mt-3"><a asp-action="Index">Back to customers</a></p>

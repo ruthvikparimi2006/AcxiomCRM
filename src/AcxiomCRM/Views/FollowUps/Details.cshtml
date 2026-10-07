@@ -1,0 +1,67 @@
+@model FollowUpDetailsViewModel
+@{
+    var f = Model.FollowUp;
+    ViewData["Title"] = f.Subject;
+    var item = new FollowUpListItem(f.FollowUpId, f.FollowUpDate, f.FollowUpType, f.Subject, f.Status,
+        f.CustomerId, f.LeadId, f.OpportunityId, Model.RelatedName, Model.AssignedName ?? "");
+    var planned = f.Status == FollowUpStatus.Planned;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@f.Subject <span class="align-middle fs-6"><partial name="_StatusBadge" model="item" /></span></h1>
+    <div class="d-flex flex-wrap gap-2">
+        @if (planned)
+        {
+            <form asp-action="Complete" asp-route-id="@f.FollowUpId" method="post">
+                <button type="submit" class="btn btn-success">Complete</button>
+            </form>
+            <form asp-action="Missed" asp-route-id="@f.FollowUpId" method="post" data-confirm="Mark this follow-up as missed?">
+                <button type="submit" class="btn btn-outline-warning">Mark missed</button>
+            </form>
+            <form asp-action="Cancel" asp-route-id="@f.FollowUpId" method="post" data-confirm="Cancel this follow-up?">
+                <button type="submit" class="btn btn-outline-secondary">Cancel follow-up</button>
+            </form>
+            <a asp-action="Edit" asp-route-id="@f.FollowUpId" class="btn btn-primary">Edit</a>
+        }
+        <form asp-action="Delete" asp-route-id="@f.FollowUpId" method="post" data-confirm="Delete this follow-up? It will be removed from lists but kept for history.">
+            <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Date</dt><dd class="col-sm-9">@f.FollowUpDate.ToString("D")</dd>
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@f.FollowUpType</dd>
+    <dt class="col-sm-3">Related to</dt><dd class="col-sm-9"><partial name="_RelatedLink" model="item" /></dd>
+    <dt class="col-sm-3">Assigned to</dt><dd class="col-sm-9">@Model.AssignedName</dd>
+    <dt class="col-sm-3">Remarks</dt><dd class="col-sm-9" style="white-space: pre-line">@(f.Remarks ?? "—")</dd>
+</dl>
+
+@if (planned)
+{
+    <form asp-action="Reschedule" asp-route-id="@f.FollowUpId" method="post" class="row g-2 align-items-end mb-4" style="max-width: 28rem;">
+        <div class="col">
+            <label for="newDate" class="form-label">Reschedule to</label>
+            <input id="newDate" name="newDate" type="date" class="form-control" required min="@NotBeforeTodayAttribute.Today.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-auto"><button type="submit" class="btn btn-outline-primary">Reschedule</button></div>
+    </form>
+}
+
+<h2 class="h5 mt-4">History</h2>
+<ul class="list-group">
+    @foreach (var h in Model.History)
+    {
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <strong>@h.Action</strong>
+                <span class="text-muted small">@h.When.ToLocalTime().ToString("g") · @(h.UserName ?? "System")</span>
+            </div>
+            @if (h.Changes is not null)
+            {
+                <div class="small text-break">@h.Changes</div>
+            }
+        </li>
+    }
+</ul>
+<p class="mt-3"><a asp-action="Index">Back to follow-ups</a></p>

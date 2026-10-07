@@ -1,0 +1,60 @@
+@model LeadDetailsViewModel
+@{
+    var l = Model.Lead;
+    ViewData["Title"] = l.LeadName;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">
+        @l.LeadName <small class="text-muted">@l.LeadCode</small>
+        <span class="align-middle fs-6"><partial name="_LeadStatusBadge" model="l.Status" /></span>
+    </h1>
+    <div class="d-flex flex-wrap gap-2">
+        @if (l.Status == LeadStatus.Qualified)
+        {
+            <a asp-action="Convert" asp-route-id="@l.LeadId" class="btn btn-success">Convert</a>
+        }
+        <a asp-controller="FollowUps" asp-action="Create" asp-route-leadId="@l.LeadId" class="btn btn-outline-primary">Schedule follow-up</a>
+        <a asp-controller="Activities" asp-action="Create" asp-route-leadId="@l.LeadId" class="btn btn-outline-primary">Log activity</a>
+        <a asp-action="Edit" asp-route-id="@l.LeadId" class="btn btn-primary">Edit</a>
+        <form asp-action="Delete" asp-route-id="@l.LeadId" method="post" data-confirm="Delete this lead? It will be removed from lists but kept for history.">
+            <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<dl class="row">
+    @if (l.ConvertedCustomerId is { } convertedId)
+    {
+        <dt class="col-sm-3">Converted to</dt>
+        <dd class="col-sm-9"><a asp-controller="Customers" asp-action="Details" asp-route-id="@convertedId">customer record</a></dd>
+    }
+    <dt class="col-sm-3">Company</dt><dd class="col-sm-9">@(l.CompanyName ?? "—")</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@(l.Email ?? "—")</dd>
+    <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">@(l.Phone ?? "—")</dd>
+    <dt class="col-sm-3">Source</dt><dd class="col-sm-9">@(l.Source is { } src ? Html.DisplayFor(_ => src) : "—")</dd>
+    <dt class="col-sm-3">Priority</dt><dd class="col-sm-9">@(l.Priority?.ToString() ?? "—")</dd>
+    <dt class="col-sm-3">Expected value</dt><dd class="col-sm-9">@(l.ExpectedValue?.ToString("N2") ?? "—")</dd>
+    <dt class="col-sm-3">Assigned to</dt><dd class="col-sm-9">@Model.AssignedName</dd>
+    <dt class="col-sm-3">Created</dt><dd class="col-sm-9">@l.CreatedDate.ToLocalTime().ToString("g")</dd>
+    <dt class="col-sm-3">Last modified</dt><dd class="col-sm-9">@(l.ModifiedDate?.ToLocalTime().ToString("g") ?? "—")</dd>
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9" style="white-space: pre-line">@(l.Notes ?? "—")</dd>
+</dl>
+
+<h2 class="h5 mt-4">History</h2>
+<ul class="list-group">
+    @foreach (var h in Model.History)
+    {
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <strong>@h.Action</strong>
+                <span class="text-muted small">@h.When.ToLocalTime().ToString("g") · @(h.UserName ?? "System")</span>
+            </div>
+            @if (h.Changes is not null)
+            {
+                <div class="small text-break">@h.Changes</div>
+            }
+        </li>
+    }
+</ul>
+<p class="mt-3"><a asp-action="Index">Back to leads</a></p>

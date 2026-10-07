@@ -1,0 +1,15 @@
+@model int
+@{
+    var (title, message) = Model switch
+    {
+        404 => ("Page not found", "The page or record you asked for doesn't exist, or you don't have access to it."),
+        400 => ("Request could not be processed", "The form may have expired. Go back, reload the page and try again."),
+        403 => ("Access denied", "You do not have permission to view this page."),
+        _ => ("Something went wrong", "We couldn't complete your request. Please try again."),
+    };
+    ViewData["Title"] = title;
+}
+
+<h1 class="h3">@title</h1>
+<p>@message</p>
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Go to dashboard</a>
