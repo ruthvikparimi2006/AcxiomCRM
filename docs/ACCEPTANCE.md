@@ -92,9 +92,3 @@ markup here and by the manual Chrome acceptance run.
 | Audit logging for security-sensitive actions | Pass | `AuditLogTests` |
 | Least-privilege roles | Pass | permission matrix; Manager view-only user admin, no audit log by default |
 | DB credentials not hard-coded | Pass | user-secrets/environment only; `AcceptanceTests.No_credentials_or_secrets_are_committed_in_configuration`; app refuses to start without its secrets (`DeploymentTests`) |
-
-## Known, non-blocking notes
-
-- An unknown URL called with POST/PUT/DELETE answers 405 instead of 404 (framework static-file fallback). Nothing runs.
-- "Today" is the server's local date; per-user time zones are not modelled.
-- Reports sort and page in memory (fine at current volumes; marked in code).
