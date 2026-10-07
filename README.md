@@ -7,18 +7,40 @@ Identity, Entity Framework Core and SQL Server.
 ![Manager dashboard](docs/screenshots/01-dashboard.png)
 
 ## Features
-- Sign-in runs on ASP.NET Core Identity: register, log in, log out and change your password. Passwords need at least 8 characters with an uppercase letter, a lowercase letter, a digit and a symbol. Five failed logins lock the account for 15 minutes, and admins can issue one-time password reset links.
-- There are three roles. Admins can do everything, Managers see their own records and their team's, and Sales Executives see only their own or assigned records. The server checks this on every page, record and API call.
-- The dashboard has KPI cards for customers, leads, open leads, opportunities (open, won and lost) and pipeline value, plus date filters. Chart.js charts show lead status, the opportunity pipeline and monthly sales.
-- Customers can be created, edited, viewed, deactivated and searched. Email and phone must be unique, and each customer has a change history and a list of related activities.
-- Leads move from New to Contacted, Qualified and Converted, or end as Unqualified or Lost. A qualified lead converts into a customer, plus an opportunity if you want one, in a single transaction.
-- Opportunities go through Qualification, Proposal and Negotiation to Won or Lost. Each one has an amount and a probability, which give the weighted pipeline. There's also a sales pipeline board.
-- Follow-ups can be scheduled, completed, marked missed, cancelled or rescheduled against a customer, lead or opportunity. Overdue and upcoming ones show up in the header bell.
-- Activities log calls, meetings, emails and tasks against customers and leads.
-- Reports cover customers, leads, follow-ups, opportunities, the pipeline, sales and conversion, user activity and the audit log, all with filters, sorting and paging.
-- The audit log records logins, failed logins, lockouts, password and role changes, and every create, update, delete and workflow event. It's append-only, and a database trigger enforces that.
-- The REST API is secured with JWT and covers customers, leads, opportunities, follow-ups and the pipeline report. See `docs/API.md`.
-- Validation happens in the browser (unobtrusive validation) and again on the server, with business rules such as: opportunity amount must be greater than 0, probability must be between 0 and 100, and close dates and follow-up dates can't be in the past.
+
+### Accounts and security
+
+- Register, log in, log out and change your password (ASP.NET Core Identity)
+- Passwords need at least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol
+- Five failed logins lock the account for 15 minutes
+- Admins can issue one-time password reset links
+- Three roles: Admins can do everything, Managers see their own and their team's records, and Sales Executives see only their own or assigned records
+- The server checks access on every page, record and API call
+- The audit log records logins, failed logins, lockouts, password and role changes, and every create, update, delete and workflow event. It's append-only, enforced by a database trigger.
+
+### Sales workflow
+
+- Leads move New → Contacted → Qualified → Converted, or end as Unqualified or Lost
+- A qualified lead converts into a customer, plus an optional opportunity, in a single transaction
+- Customers can be created, edited, viewed, deactivated and searched, with unique email and phone, a change history and related activities
+- Opportunities move Qualification → Proposal → Negotiation → Won or Lost, and their amount and probability give the weighted pipeline
+- A sales pipeline board shows opportunities by stage
+- Follow-ups can be scheduled, completed, marked missed, cancelled or rescheduled against a customer, lead or opportunity
+- Overdue and upcoming follow-ups show up in the header bell
+- Activities log calls, meetings, emails and tasks against customers and leads
+
+### Dashboard and reports
+
+- KPI cards for customers, leads, open leads, opportunities (open, won and lost) and pipeline value
+- Date filters
+- Chart.js charts for lead status, the opportunity pipeline and monthly sales
+- Eight reports: customers, leads, follow-ups, opportunities, pipeline, sales and conversion, user activity, and audit, all with filters, sorting and paging
+
+### API and validation
+
+- REST API secured with JWT, covering customers, leads, opportunities, follow-ups and the pipeline report (see [docs/API.md](docs/API.md))
+- Validation in the browser (unobtrusive validation) and again on the server
+- Business rules, for example: opportunity amount must be greater than 0, probability must be between 0 and 100, and close dates and follow-up dates can't be in the past
 
 ## How it works
 
