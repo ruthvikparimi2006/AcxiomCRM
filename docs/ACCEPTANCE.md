@@ -1,4 +1,4 @@
-# AcxiomCRM — Acceptance Record (Step 13)
+# AcxiomCRM : Acceptance Record (Step 13)
 
 Automated suite: **310 tests, all passing** (`dotnet test`, run twice). Tests run against a real SQL Server test
 database and the real ASP.NET Core pipeline (WebApplicationFactory), including anti-forgery, authentication and
