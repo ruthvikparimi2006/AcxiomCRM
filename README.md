@@ -165,8 +165,6 @@ it creates and deletes automatically. It covers authentication, authorization an
 requests), every module, the four CRM workflows, the audit log, the REST API, dashboard and reports, and production
 settings. To use a different server, set the `ACXIOMCRM_TEST_DB` environment variable to a connection string.
 
-How each requirement is verified is recorded in [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
-
 ## REST API
 
 Authenticate with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last
@@ -195,8 +193,3 @@ src/AcxiomCRM/
 tests/AcxiomCRM.Tests/  Automated tests
 docs/                 API reference, acceptance record, deployment guide, screenshots
 ```
-
-## Deployment
-
-Production configuration (environment variables, HTTPS/HSTS, reverse proxy, data-protection keys, least-privilege
-database login and an idempotent migration script) is described in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
